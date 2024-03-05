@@ -1,7 +1,9 @@
 from collections import UserDict
 from functools import reduce
 import json
-import datetime
+import datetime as dt
+import re
+from datetime import datetime as dtdt
 class BaseClass:
     def __init__(self, value):
         self.value = value
@@ -19,23 +21,31 @@ class Phone(BaseClass):
 class Name(BaseClass):
     pass
 class Birthday(BaseClass):
-    def __init__(self, dayb):
-        print(f"day = {dayb}")
-        try:
-            # Додайте перевірку коректності даних
-            # та перетворіть рядок на об'єкт datetime
-            spec_data = datetime.datetime(year=int(dayb[1]), month=int(dayb[2]), day=int(dayb[3]))
-            dayb = spec_data
-            print(f"spec_date = {dayb}")
-        except ValueError:
-            print(f"Неправильне введення дати. Використовуйте шаблон: YYYY.MM.DD")
-            raise main()
+    def __init__(self, birthday):
+        super().__init__(birthday)
+        print(f"birthday = {birthday}")
+        pattern = r"\d+\.+\d+\.+\d+"
+        da = re.findall(pattern, birthday)
+        da = da[0]
+        print(f"   da = {da}")
+        if len(da) != 10:
+            print(f"Неправильне введення дати. Використовуйте шаблон: addbirthday [name] [YYYY.MM.DD]")
+            raise main()   
+        else:
+            if dtdt.strptime(da, "%Y.%m.%d").date(): # перетворюємо дату народження в об’єкт date
+                print(f"   555 d = {da}")
+                birthday = da 
+                print(f"   birthday = {birthday}")
+            else:
+                print(f"Неправильне введення дати. Використовуйте шаблон: addbirthday name YYYY.MM.DD")
+                raise main()
+        
 
 class Record: 
     def __init__(self, name):
         self.name = name
         self.phones = None
-        self.birthday = None
+        # self.birthday = []
 
     def add_date(self, args):
         self.birthday = args
@@ -48,127 +58,180 @@ class Record:
 
 class AddressBook(UserDict):  # Клас для зберігання та управління записами
     def __init__(self):
-        self.data1 = {}
+        self.data1 = []
     def add_record(self, name, phones):
-        self.checit_json(r'D:\Projects\Module6\Module6\A1.json')
-        kk = False
-        for key in self.data1:
-            if key == name:
-                self.data1[key].append(phones)
-                kk = True
-        if kk !=True:
-            phones = [phones]
-            self.data1.update({name: phones})
-        self.write_json(r'D:\Projects\Module6\Module6\A1.json')
+        self.checit_json(r'D:\Projects\Module7\Module7-1\A1.json')
+        for el in self.data1:
+            # print(f"   el = {el} el[name]= {el["name"]} name = {name}")
+            kk = True
+            if "name" in el:
+                if name==el["name"]:
+                    el["phones"].append(phones)
+                    kk = False
+                    break
+        if kk:
+            a = {"name": name, "phones": [phones]}
+            self.data1.append(a)
+        self.write_json(r'D:\Projects\Module7\Module7-1\A1.json')
         print (f'Контакт користувача додано.')
 
     def add_birthday(self, name, birthday):
-        self.checit_json(r'D:\Projects\Module6\Module6\A1.json')
-        if self.data1[name]:
-                self.data1.update({"birthday":birthday})
-                self.write_json(r'D:\Projects\Module6\Module6\A1.json')
+        self.checit_json(r'D:\Projects\Module7\Module7-1\A1.json')
+        for el in self.data1:
+            print(f"   el = {el} el[name]= {el["name"]} name = {name}")
+            kk = True
+            if name==el["name"]:
+                a = {"birthday":birthday}
+                print(f" birthday = {birthday}")
+                el.update(a)
+                print(f" el = {el}")
+                kk = False
+                self.write_json(r'D:\Projects\Module7\Module7-1\A1.json')
                 print (f'День народження користувача додано.')
-        else:
-            print(f"Користувача {name} не знайдено: помилка вводу імені") 
-
-    # def add_contact(args, book: AddressBook):
-    #     name, phone, *_ = args
-    #     record = book.find(name)
-    #     message = "Contact updated."
-    #     if record is None:
-    #         record = Record(name)
-    #         book.add_record(record)
-    #         message = "Contact added."
-    #     if phone:
-    #         record.add_phone(phone)
-    #     return message
+                break
+        if kk:
+            print(f"Користувача {name} не знайдено: помилка вводу імені")
 
     def list(self):
-        self.checit_json(r'D:\Projects\Module6\Module6\A1.json')
+        self.checit_json(r'D:\Projects\Module7\Module7-1\A1.json')
         i = 0
-        for key in self.data1:
-                i +=1
-                len2=0 
-                print(f"{i:2}. {key:10} Телефон: """, end="")
-                len1 = len(self.data1[key])
-                for value in self.data1[key]:
-                    len2 +=1
-                    if len2 < len1:
-                        print(f"{value}"", ", end="")
-                    else:
-                        print(f"{value}")   
+        for value in self.data1:
+            i +=1
+            aa = value.get("name")
+            bb = value.get("phones")
+            string1 = ''
+            for el in bb:
+                string1 += el + " "
+            print(f"{i:2}. {aa:10} Телефон(и): {string1}")
+
+    def find_birthday(self, name):
+        self.checit_json(r'D:\Projects\Module7\Module7-1\A1.json')
+        for el in self.data1:
+            kk = True
+            if "name" in el and "birthday" in el:
+                if name==el["name"]:
+                    birthday = el["birthday"]
+                    print(f"День народження користувача {name}: {birthday}")
+                    kk = False
+                    break
+        if kk:
+            print(f"Помилка вводу імені користувача або дані про день народження відсутні.")
 
     def find_name(self, name):
-        self.checit_json(r'D:\Projects\Module6\Module6\A1.json')
+        self.checit_json(r'D:\Projects\Module7\Module7-1\A1.json')
         kk = False
         i = 0
-        for key in self.data1:
-            if key == name:
-                len1 = len(self.data1[key])
-                if len1 > 1:
-                    print(f"{len1} телефони користувача {name} знайдено:")  
-                else:
-                     print(f"Телефон користувача {name} знайдено:")  
-                for value in self.data1[key]:
-                    i +=1
-                    print(f"{i:5}.  {value}")   
-                kk = True
+        for el in self.data1:
+            if "name" in el:
+                if name==el["name"]:
+                    kk = True
+                    len1 = len(el["phones"])
+                    if len1 > 1:
+                        print(f"{len1} телефони користувача {name} знайдено:")  
+                    else:
+                        print(f"Телефон користувача {name} знайдено:")  
+                    for value in el['phones']:
+                        i +=1
+                        print(f"{i:5}.  {value}")            
         if kk !=True:
             print(f"Телефон користувача {name} не знайдено.")   
 
     def remove_name(self, name):
-        self.checit_json(r'D:\Projects\Module6\Module6\A1.json')
-        try:
-            self.data1.pop(name)
-            print(f"Інформація про користувача {name} видалена") 
-            self.erase_json(r'D:\Projects\Module6\Module6\A1.json')
-            self.write_json(r'D:\Projects\Module6\Module6\A1.json')
-        except Exception as error:
-            print(f"Користувача {name} не знайдено: помилка вводу {error}")  
+        self.checit_json(r'D:\Projects\Module7\Module7-1\A1.json')
+        i = -1
+        kk = True
+        for el in self.data1: 
+            i +=1
+            if "name" in el:
+                    if name==el["name"]:
+                        self.data1.pop(i)
+                        # print(f" self.data1.pop  = {self.data1}     s = {s}")
+                        kk = False
+                        print(f"Інформація про користувача {name} видалена") 
+                        self.erase_json(r'D:\Projects\Module7\Module7-1\A1.json')
+                        self.write_json(r'D:\Projects\Module7\Module7-1\A1.json')
+        if kk:
+            print(f"Користувача {name} не знайдено: помилка вводу") 
 
-    def change_name(self, name, name2):
-        self.checit_json(r'D:\Projects\Module6\Module6\A1.json')
-        if self.data1.get(name) != None:
-            # print(f" name = {name} name2 = {name2} a = {self.data1.get(name)}")
-            self.data1[name2] = self.data1.pop(name)
-            self.erase_json(r'D:\Projects\Module6\Module6\A1.json')
-            self.write_json(r'D:\Projects\Module6\Module6\A1.json')
-            print(f"Ім'я користувача {name} змінено на {name2}") 
-        else: 
-            print(f"Користувача {name} не знайдено: помилка вводу імені") 
+    # def change_name(self, name, name2):
+    #     self.checit_json(r'D:\Projects\Module7\Module7-1\A1.json')
+    #     if self.data1.get(name) != None:
+    #         # print(f" name = {name} name2 = {name2} a = {self.data1.get(name)}")
+    #         self.data1[name2] = self.data1.pop(name)
+    #         self.erase_json(r'D:\Projects\Module7\Module7-1\A1.json')
+    #         self.write_json(r'D:\Projects\Module7\Module7-1\A1.json')
+    #         print(f"Ім'я користувача {name} змінено на {name2}") 
+    #     else: 
+    #         print(f"Користувача {name} не знайдено: помилка вводу імені") 
 
     def change_phone(self, name, phon):
+        self.checit_json(r'D:\Projects\Module7\Module7-1\A1.json')
         i = 0
-        self.checit_json(r'D:\Projects\Module6\Module6\A1.json')
-        if self.data1.get(name) != None:
-            for value in self.data1[name]:
-                i +=1
-                print(f"{i:5}.  {value}")   
-            if i > 1:
-                number_tel = input("Який телефон змінюємо: введіть його порядковий номер:")
-                if number_tel.isdigit():
-                    number_tel = int(number_tel)
-                    if number_tel > 0 and number_tel <= len(self.data1[name]): 
-                        self.data1[name][number_tel - 1] = phon
-                        print(f" self.data1[name][number_tel - 1] = {self.data1[name][number_tel - 1]}  phon = {phon}")
+        kk = True
+        for el in self.data1: 
+                if name==el["name"]:
+                    for value in el['phones']:
+                        i +=1
+                        print(f"{i:5}.  {value}")   
+                    if i > 1:
+                        number_tel = input("Який телефон змінюємо: введіть його порядковий номер:")
+                        if number_tel.isdigit():
+                            number_tel = int(number_tel)
+                            if number_tel > 0 and number_tel <= len(el["phones"]): 
+                                el["phones"][number_tel - 1] = phon
+                            else:
+                                print(f"Невірний порядковий номер {number_tel}")
+                                raise main()
+                        else:
+                            print(f"Невірний порядковий номер {number_tel}")
+                            raise main()
                     else:
-                        print(f"Невірний порядковий номер {number_tel}")
-                        raise main()
-                else:
-                    print(f"Невірний порядковий номер {number_tel}")
-                    raise main()
-            else:
-                 self.data1[name] = [phon]
-            self.erase_json(r'D:\Projects\Module6\Module6\A1.json')
-            self.write_json(r'D:\Projects\Module6\Module6\A1.json')
-            print(f"Телефон користувача {name} змінено на {phon}")
-            i = 0
-            for value in self.data1[name]:
-                i +=1
-                print(f"{i:5}.  {value}") 
-        else: 
+                        el["phones"] = [phon]
+                    self.erase_json(r'D:\Projects\Module7\Module7-1\A1.json')
+                    self.write_json(r'D:\Projects\Module7\Module7-1\A1.json')
+                    print(f"Телефон користувача {name} змінено на {phon}:")
+                    kk = False
+                    i = 0
+                    for val in el["phones"]:
+                        i +=1
+                        print(f"{i:5}.  {val}") 
+        if kk: 
             print(f"Користувача {name} не знайдено: помилка вводу імені")
             raise main()
+
+    def get_upcoming_birthdays(self):
+        self.checit_json(r'D:\Projects\Module7\Module7-1\A1.json')
+        tdate=dtdt.today().date() # беремо сьогоднішню дату
+        birthdays=[] # створюємо список для результатів
+        for user in self.data1: # перебираємо користувачів
+            bdate=user["birthday"] # отримуємо дату народження людини у вигляді рядка
+            bdate=str(tdate.year)+bdate[4:] # Замінюємо рік на поточний
+            bdate=dtdt.strptime(bdate, "%Y.%m.%d").date() # перетворюємо дату народження в об’єкт date
+            week_day=bdate.isoweekday() # Отримуємо день тижня (1-7)
+            days_between=(bdate-tdate).days # рахуємо різницю між зараз і днем народження цьогоріч у днях
+            # print(f" days_between = {days_between}")
+            if 0<=days_between<7: # якщо день народження протягом 7 днів від сьогодні
+                if week_day<6: #  якщо пн-пт
+                    birthdays.append({'name':user['name'], 'birthday':bdate.strftime("%Y.%m.%d")}) 
+                    # Додаємо запис у список.
+                else:
+                    if (bdate+dt.timedelta(days=1)).weekday()==0:# якщо неділя
+                        birthdays.append({'name':user['name'], 'birthday':(bdate+dt.timedelta(days=1)).strftime("%Y.%m.%d")})
+                    #Переносимо на понеділок. Додаємо запис у список.
+                    elif (bdate+dt.timedelta(days=2)).weekday()==0: #якщо субота
+                        birthdays.append({'name':user['name'], 'birthday':(bdate+dt.timedelta(days=2)).strftime("%Y.%m.%d")})
+                    #Переносимо на понеділок. Додаємо запис у список.
+        # print(f" birthdays = {birthdays}")
+        i = 0
+        if len(birthdays) > 0:
+            print("Необхідно привітати наступних користувачів:")
+            for el in birthdays:
+                i +=1
+                print(f"{i:5}.  День народження користувача {el["name"]}: {el["birthday"]}")
+        else:
+            print("На найближчий час днів народжень користувачів не передбачається")
+
+        # return birthdays
 
     def write_json(self, filename):
         with open(filename, 'w') as file:   # записуємо
@@ -205,7 +268,9 @@ def main():
         addressBook = AddressBook()
 
         print("Ласкаво просимо до бота-помічника!")
-        while True:
+        print("Формат команд:\nclose або exit\nadd [name] [phone]\nlist\nfindname [name]\nremove [name]\nchangephone [name] [new phone]\naddbirthday [name] [YYYY.MM.DD]")
+        print("findbirthday [name]")
+        while True: 
             user_input = input("Введіть команду: ")
             command, *args = parse_input(user_input)
             print(f"000 comand = {command} args = {args}")
@@ -224,17 +289,20 @@ def main():
                 addressBook.find_name(args[0])
             elif command == "remove":
                 addressBook.remove_name(args[0])
-            elif command == "changename":
-                addressBook.change_name(args[0],args[1])
+            # elif command == "changename":
+            #     addressBook.change_name(args[0],args[1])
             elif command == "changephone":
-                record = Record(args[0])
-                record.add_phone(args[1])
-                addressBook.change_phone(record.name, record.phones)
+                    record = Record(args[0])
+                    record.add_phone(args[1])
+                    addressBook.change_phone(record.name, record.phones)
             elif command == "addbirthday":
-                print(f"   Ми тут")
                 record = Record(args[0])
-                record.add_date(args)  # birthday
+                record.add_date(args[1])  # birthday
                 addressBook.add_birthday(record.name, record.birthday)
+            elif command == "findbirthday":
+                addressBook.find_birthday(args[0])
+            elif command == "birthday":
+                addressBook.get_upcoming_birthdays()
             else:
                 print("Invalid command.")
 
