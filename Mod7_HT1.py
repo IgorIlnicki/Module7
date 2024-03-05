@@ -23,19 +23,19 @@ class Name(BaseClass):
 class Birthday(BaseClass):
     def __init__(self, birthday):
         super().__init__(birthday)
-        print(f"birthday = {birthday}")
+        # print(f"birthday = {birthday}")
         pattern = r"\d+\.+\d+\.+\d+"
         da = re.findall(pattern, birthday)
         da = da[0]
-        print(f"   da = {da}")
+        # print(f"   da = {da}")
         if len(da) != 10:
             print(f"Неправильне введення дати. Використовуйте шаблон: addbirthday [name] [YYYY.MM.DD]")
             raise main()   
         else:
             if dtdt.strptime(da, "%Y.%m.%d").date(): # перетворюємо дату народження в об’єкт date
-                print(f"   555 d = {da}")
+                # print(f"   555 d = {da}")
                 birthday = da 
-                print(f"   birthday = {birthday}")
+                # print(f"   birthday = {birthday}")
             else:
                 print(f"Неправильне введення дати. Використовуйте шаблон: addbirthday name YYYY.MM.DD")
                 raise main()
@@ -49,7 +49,7 @@ class Record:
 
     def add_date(self, args):
         self.birthday = args
-        print(f"self.birthday = {self.birthday}")
+        # print(f"self.birthday = {self.birthday}")
         Birthday(self.birthday)
 
     def add_phone(self, phon):
@@ -78,13 +78,12 @@ class AddressBook(UserDict):  # Клас для зберігання та упр
     def add_birthday(self, name, birthday):
         self.checit_json(r'D:\Projects\Module7\Module7-1\A1.json')
         for el in self.data1:
-            print(f"   el = {el} el[name]= {el["name"]} name = {name}")
-            kk = True
+            # print(f"   el = {el} el[name]= {el["name"]} name = {name}")
             if name==el["name"]:
                 a = {"birthday":birthday}
-                print(f" birthday = {birthday}")
+                # print(f" birthday = {birthday}")
                 el.update(a)
-                print(f" el = {el}")
+                # print(f" el = {el}")
                 kk = False
                 self.write_json(r'D:\Projects\Module7\Module7-1\A1.json')
                 print (f'День народження користувача додано.')
@@ -266,14 +265,13 @@ def parse_input(user_input): #ввод команди та аргументів
 
 def main():
         addressBook = AddressBook()
-
         print("Ласкаво просимо до бота-помічника!")
         print("Формат команд:\nclose або exit\nadd [name] [phone]\nlist\nfindname [name]\nremove [name]\nchangephone [name] [new phone]\naddbirthday [name] [YYYY.MM.DD]")
-        print("findbirthday [name]")
+        print("findbirthday [name]\nbirthday")
         while True: 
             user_input = input("Введіть команду: ")
             command, *args = parse_input(user_input)
-            print(f"000 comand = {command} args = {args}")
+            # print(f"000 comand = {command} args = {args}")
             if command in ["close", "exit"]:
                 print("Good bye!")
                 break
