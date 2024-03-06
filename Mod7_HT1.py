@@ -4,6 +4,15 @@ import json
 import datetime as dt
 import re
 from datetime import datetime as dtdt
+
+def input_error(func):                
+    def inner(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            return f"Error: {str(e)}"
+    return inner
+
 class BaseClass:
     def __init__(self, value):
         self.value = value
@@ -232,19 +241,19 @@ class AddressBook(UserDict):  # Клас для зберігання та упр
             print("На найближчий час днів народжень користувачів не передбачається")
 
         # return birthdays
-    def input_error(func):   # декоратор
-        def inner(*args, **kwargs):
-            try:
-                return func(*args, **kwargs)
-            except ValueError:
-                return "Give me name and phone please."
-            except KeyError:
-                return "No such name found"
-            except IndexError:
-                return "Not found"
-            except Exception as e:
-                return f"Error: {e}"
-        return inner
+    # def input_error(func):   # декоратор
+    #     def inner(*args, **kwargs):
+    #         try:
+    #             return func(*args, **kwargs)
+    #         except ValueError:
+    #             return "Give me name and phone please."
+    #         except KeyError:
+    #             return "No such name found"
+    #         except IndexError:
+    #             return "Not found"
+    #         except Exception as e:
+    #             return f"Error: {e}"
+    #     return inner
     
     def write_json(self, filename):
         with open(filename, 'w') as file:   # записуємо
