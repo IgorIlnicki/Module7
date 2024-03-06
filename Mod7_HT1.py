@@ -59,6 +59,7 @@ class Record:
 class AddressBook(UserDict):  # Клас для зберігання та управління записами
     def __init__(self):
         self.data1 = []
+    @input_error
     def add_record(self, name, phones):
         self.checit_json(r'D:\Projects\Module7\Module7-1\A1.json')
         for el in self.data1:
@@ -74,7 +75,7 @@ class AddressBook(UserDict):  # Клас для зберігання та упр
             self.data1.append(a)
         self.write_json(r'D:\Projects\Module7\Module7-1\A1.json')
         print (f'Контакт користувача додано.')
-
+    @input_error
     def add_birthday(self, name, birthday):
         self.checit_json(r'D:\Projects\Module7\Module7-1\A1.json')
         for el in self.data1:
@@ -90,7 +91,7 @@ class AddressBook(UserDict):  # Клас для зберігання та упр
                 break
         if kk:
             print(f"Користувача {name} не знайдено: помилка вводу імені")
-
+    @input_error
     def list(self):
         self.checit_json(r'D:\Projects\Module7\Module7-1\A1.json')
         i = 0
@@ -102,7 +103,7 @@ class AddressBook(UserDict):  # Клас для зберігання та упр
             for el in bb:
                 string1 += el + " "
             print(f"{i:2}. {aa:10} Телефон(и): {string1}")
-
+    @input_error
     def find_birthday(self, name):
         self.checit_json(r'D:\Projects\Module7\Module7-1\A1.json')
         for el in self.data1:
@@ -115,7 +116,7 @@ class AddressBook(UserDict):  # Клас для зберігання та упр
                     break
         if kk:
             print(f"Помилка вводу імені користувача або дані про день народження відсутні.")
-
+    @input_error
     def find_name(self, name):
         self.checit_json(r'D:\Projects\Module7\Module7-1\A1.json')
         kk = False
@@ -134,7 +135,7 @@ class AddressBook(UserDict):  # Клас для зберігання та упр
                         print(f"{i:5}.  {value}")            
         if kk !=True:
             print(f"Телефон користувача {name} не знайдено.")   
-
+    @input_error
     def remove_name(self, name):
         self.checit_json(r'D:\Projects\Module7\Module7-1\A1.json')
         i = -1
@@ -162,7 +163,7 @@ class AddressBook(UserDict):  # Клас для зберігання та упр
     #         print(f"Ім'я користувача {name} змінено на {name2}") 
     #     else: 
     #         print(f"Користувача {name} не знайдено: помилка вводу імені") 
-
+    @input_error
     def change_phone(self, name, phon):
         self.checit_json(r'D:\Projects\Module7\Module7-1\A1.json')
         i = 0
@@ -197,7 +198,7 @@ class AddressBook(UserDict):  # Клас для зберігання та упр
         if kk: 
             print(f"Користувача {name} не знайдено: помилка вводу імені")
             raise main()
-
+    @input_error
     def get_upcoming_birthdays(self):
         self.checit_json(r'D:\Projects\Module7\Module7-1\A1.json')
         tdate=dtdt.today().date() # беремо сьогоднішню дату
@@ -231,7 +232,20 @@ class AddressBook(UserDict):  # Клас для зберігання та упр
             print("На найближчий час днів народжень користувачів не передбачається")
 
         # return birthdays
-
+    def input_error(func):   # декоратор
+        def inner(*args, **kwargs):
+            try:
+                return func(*args, **kwargs)
+            except ValueError:
+                return "Give me name and phone please."
+            except KeyError:
+                return "No such name found"
+            except IndexError:
+                return "Not found"
+            except Exception as e:
+                return f"Error: {e}"
+        return inner
+    
     def write_json(self, filename):
         with open(filename, 'w') as file:   # записуємо
             json.dump(self.data1, file, indent=4)
@@ -254,14 +268,9 @@ class AddressBook(UserDict):  # Клас для зберігання та упр
 def parse_input(user_input): #ввод команди та аргументів
     cmd, *args = user_input.split()
     cmd = cmd.strip().lower()
-    # args0.clear()
-    # for a in args:
-    #     print(f" a = {a}")
-    #     if str(a).isdigit():
-    #         args0.append(a)
-    #         print(f" 0 args0 = {args0}")
-    # print(f" args0 = {args0}")
     return cmd, *args
+
+
 
 def main():
         addressBook = AddressBook()
